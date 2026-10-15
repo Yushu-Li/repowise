@@ -117,6 +117,8 @@ _GENERATED_SENTENCE_RE = re.compile(
 # lines. Only the whole line counts: "Do not modify by hand without ..." or
 # "Generated code: see docs" in a hand-written file says something else.
 _GENERATED_BANNER_LINE_RE = re.compile(r"^GENERATED CODE - DO NOT MODIFY BY HAND\s*$")
+# Visual Studio rewrites resource headers, but ingestion must keep their include edges.
+_VISUAL_CPP_BANNER_LINE_RE = re.compile(r"^MICROSOFT VISUAL C\+\+ GENERATED INCLUDE FILE\.?\s*$")
 _GENERATED_SENTENCE_LINES = 40
 _PREAMBLE_PREFIXES = ("package ", "import ", "from ", "using ")
 
@@ -188,7 +190,11 @@ def _leading_generated_sentence(header: str) -> bool:
 
 
 def _says_generated(text: str) -> bool:
-    return bool(_GENERATED_SENTENCE_RE.search(text) or _GENERATED_BANNER_LINE_RE.search(text))
+    return bool(
+        _GENERATED_SENTENCE_RE.search(text)
+        or _GENERATED_BANNER_LINE_RE.search(text)
+        or _VISUAL_CPP_BANNER_LINE_RE.search(text)
+    )
 
 
 def _above_import(lines: list[str], i: int) -> bool:
