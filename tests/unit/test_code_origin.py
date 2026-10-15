@@ -177,6 +177,42 @@ def test_generated_banner_negatives() -> None:
     assert not is_generated_header("a = 1\nb = 2\n# DO NOT EDIT\n")
 
 
+@pytest.mark.parametrize("period", [".", ""])
+@pytest.mark.parametrize("path", ["src/modules/ZoomIt/ZoomIt/resource.h", "src/app/resource.h"])
+def test_visual_cpp_resource_header_is_generated_without_skipping_ingestion(
+    path: str, period: str
+) -> None:
+    text = (
+        "//{{NO_DEPENDENCIES}}\n"
+        f"// Microsoft Visual C++ generated include file{period}\n"
+        "// Used by ZoomIt.rc\n"
+        "//\n"
+        "//////////////////////////////\n"
+        "// Non-localizable\n"
+        "\n"
+        '#define FILE_DESCRIPTION "Sysinternals Screen Magnifier"\n'
+        '#define INTERNAL_NAME "ZoomIt"\n'
+        '#define ORIGINAL_FILENAME "PowerToys.ZoomIt.exe"\n'
+    )
+    assert code_origin(path, text) == "generated"
+    # The resource IDs must remain in the graph for their includers.
+    assert not is_generated_header(text)
+
+
+@pytest.mark.parametrize(
+    "comment",
+    [
+        "Workaround for a Microsoft Visual C++ generated warning",
+        "Workaround for Microsoft Visual C++ generated include file.",
+        "Microsoft Visual C++ generated include file. See the workaround below.",
+    ],
+)
+def test_visual_cpp_banner_like_prose_stays_production(comment: str) -> None:
+    text = f"//{{{{NO_DEPENDENCIES}}}}\n// {comment}\n#define RESOURCE_ID 101\n"
+    assert code_origin("src/app/resource.h", text) == "production"
+    assert not is_generated_header(text)
+
+
 _ES_EVALUATOR = (
     "// Copyright Elasticsearch B.V. Licensed under the Elastic License 2.0.\n"
     "package org.elasticsearch.xpack.esql.expression;\n"
