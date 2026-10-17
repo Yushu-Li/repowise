@@ -111,7 +111,7 @@ async def find_suspects(
             "suspects": [], "note": NOTE,
         }
 
-    commit_limit = int(load_repo_config(repo_path).get("commit_limit") or _DEFAULT_COMMIT_LIMIT)
+    commit_limit = int(load_repo_config(repo_path).get("commit_limit") or 0) or _DEFAULT_COMMIT_LIMIT
     files_of = {
         r.change_id: tuple(f["path"] for f in json.loads(r.files_json or "[]")) for r in rows
     }
