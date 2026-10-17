@@ -281,7 +281,7 @@ async def test_empty_suspects_window_is_not_capped(suspects_index):
     assert out["suspects"] == []
 
 
-@pytest.mark.parametrize("config", [{}, {"commit_limit": 0}, {"commit_limit": None}])
+@pytest.mark.parametrize("config", [{}, {"commit_limit": 0}, {"commit_limit": "0"}, {"commit_limit": None}])
 async def test_candidates_use_the_default_commit_limit(suspects_index, config):
     from repowise.core.repo_config import save_repo_config
     from repowise.core.suspects.index import find_suspects
